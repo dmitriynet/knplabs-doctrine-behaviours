@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace Knp\DoctrineBehaviors\Tests;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Logging\DebugStack;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\DoctrineBehaviors\Middleware\DebugStack;
 use Knp\DoctrineBehaviors\Tests\HttpKernel\DoctrineBehaviorsKernel;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Log\Logger;
 
 abstract class AbstractBehaviorTestCase extends TestCase
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+
+    protected EntityManagerInterface $entityManager;
 
     private ContainerInterface $container;
 
@@ -28,7 +27,7 @@ abstract class AbstractBehaviorTestCase extends TestCase
 
         $this->container = $doctrineBehaviorsKernel->getContainer();
 
-        $this->entityManager = $this->getService('doctrine.orm.entity_manager');
+        $this->entityManager = $this->getService(EntityManagerInterface::class);
         $this->loadDatabaseFixtures();
     }
 
@@ -44,7 +43,7 @@ abstract class AbstractBehaviorTestCase extends TestCase
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
-        return $connection->getDatabasePlatform() instanceof PostgreSQL94Platform;
+        return $connection->getDatabasePlatform() instanceof PostgreSQLPlatform;
     }
 
     /**
@@ -57,11 +56,12 @@ abstract class AbstractBehaviorTestCase extends TestCase
 
     protected function createAndRegisterDebugStack(): DebugStack
     {
-        $debugStack = new DebugStack();
+        $debugStack = new DebugStack(new Logger());
 
         $this->entityManager->getConnection()
             ->getConfiguration()
-            ->setSQLLogger($debugStack);
+            ->setMiddlewares([$debugStack]);
+
 
         return $debugStack;
     }

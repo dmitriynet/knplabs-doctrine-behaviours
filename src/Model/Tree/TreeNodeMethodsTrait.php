@@ -14,10 +14,8 @@ use Nette\Utils\Json;
 
 trait TreeNodeMethodsTrait
 {
-    /**
-     * @return string|int|null
-     */
-    public function getNodeId()
+
+    public function getNodeId(): int|string|null
     {
         return $this->getId();
     }
