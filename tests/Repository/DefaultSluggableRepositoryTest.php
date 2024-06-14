@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace Knp\DoctrineBehaviors\Tests\Repository;
 
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Knp\DoctrineBehaviors\Contract\Entity\SluggableInterface;
 use Knp\DoctrineBehaviors\Repository\DefaultSluggableRepository;
+use Knp\DoctrineBehaviors\Tests\Helper\ConsecutiveParams;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class DefaultSluggableRepositoryTest extends TestCase
 {
+    use ConsecutiveParams;
     /**
      * @var EntityManagerInterface&MockObject
      */
-    private $entityManager;
+    private EntityManagerInterface|MockObject $entityManager;
 
     private DefaultSluggableRepository $defaultSluggableRepository;
 
@@ -65,17 +67,23 @@ final class DefaultSluggableRepositoryTest extends TestCase
 
         $queryBuilder->expects(self::exactly(2))
             ->method('andWhere')
-            ->withConsecutive(['e.slug = :slug'], ['e.id.id != :id_id'])
+            ->with(...$this->consecutiveParams(
+                ['e.slug = :slug'],
+                ['e.id.id != :id_id']
+            ))
             ->willReturnSelf();
 
         $queryBuilder->expects(self::exactly(2))
             ->method('setParameter')
-            ->withConsecutive(['slug', $uniqueSlug], ['id_id', '123'])
+            ->with(...$this->consecutiveParams(
+                ['slug', $uniqueSlug],
+                ['id_id', '123']
+            ))
             ->willReturnSelf();
 
         $queryBuilder->expects(self::once())
             ->method('getQuery')
-            ->willReturn($query = $this->createMock(AbstractQuery::class));
+            ->willReturn($query = $this->createMock(Query::class));
 
         $query->expects(self::once())
             ->method('getSingleScalarResult')

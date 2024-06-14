@@ -12,7 +12,7 @@ use Knp\DoctrineBehaviors\Tests\HttpKernel\DoctrineBehaviorsKernel;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Log\Logger;
-
+use Symfony\Component\ErrorHandler\ErrorHandler;
 abstract class AbstractBehaviorTestCase extends TestCase
 {
 
@@ -29,6 +29,8 @@ abstract class AbstractBehaviorTestCase extends TestCase
 
         $this->entityManager = $this->getService(EntityManagerInterface::class);
         $this->loadDatabaseFixtures();
+
+        set_exception_handler([new ErrorHandler(), 'handleException']);
     }
 
     protected function loadDatabaseFixtures(): void
@@ -74,5 +76,10 @@ abstract class AbstractBehaviorTestCase extends TestCase
     protected function getService(string $type): object
     {
         return $this->container->get($type);
+    }
+
+    public function tearDown(): void
+    {
+        set_exception_handler(null);
     }
 }

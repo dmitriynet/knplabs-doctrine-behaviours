@@ -12,6 +12,7 @@ use Psr\Log\Test\TestLogger;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Bundle\SecurityBundle\Security;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use Symfony\Component\ErrorHandler\ErrorHandler;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
@@ -70,4 +71,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ],
         ],
     ]);
+    set_exception_handler([new ErrorHandler(), 'handleException']);
+
 };
