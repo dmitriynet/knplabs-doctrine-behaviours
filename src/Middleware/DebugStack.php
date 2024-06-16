@@ -45,9 +45,6 @@ class DebugStack implements MiddlewareInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function stopQuery(): void
     {
         if (! $this->enabled) {
