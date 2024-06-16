@@ -29,10 +29,8 @@ trait TreeTrait
 
     /**
      * Returns a node hydrated with its children and parents
-     *
-     * @return TreeNodeInterface[]|ArrayAccess|null
      */
-    public function getTree(string $path = '', string $rootAlias = 't', array $extraParams = [])
+    public function getTree(string $path = '', string $rootAlias = 't', array $extraParams = []): array|ArrayAccess|null
     {
         $results = $this->getFlatTree($path, $rootAlias, $extraParams);
 
@@ -55,7 +53,7 @@ trait TreeTrait
      *
      * @return ArrayAccess|TreeNodeInterface[]|null
      */
-    public function buildTree(array $results)
+    public function buildTree(array $results): array|ArrayAccess|null
     {
         if ($results === []) {
             return null;

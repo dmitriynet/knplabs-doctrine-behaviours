@@ -14,7 +14,7 @@ trait TranslatableMethodsTrait
     /**
      * @return Collection<string, TranslationInterface>
      */
-    public function getTranslations()
+    public function getTranslations(): Collection
     {
         // initialize collection, usually in ctor
         if ($this->translations === null) {
@@ -27,6 +27,7 @@ trait TranslatableMethodsTrait
     /**
      * @param Collection<string, TranslationInterface> $translations
      * @phpstan-param iterable<TranslationInterface> $translations
+     * @throws TranslatableException
      */
     public function setTranslations(iterable $translations): void
     {
@@ -64,7 +65,7 @@ trait TranslatableMethodsTrait
     }
 
     /**
-     * Returns translation for specific locale (creates new one if doesn't exists). If requested translation doesn't
+     * Returns translation for specific locale (creates new one if it doesn't exist). If requested translation doesn't
      * exist, it will first try to fallback default locale If any translation doesn't exist, it will be added to
      * newTranslations collection. In order to persist new translations, call mergeNewTranslations method, before flush
      *
@@ -123,7 +124,7 @@ trait TranslatableMethodsTrait
     }
 
     /**
-     * Returns translation for specific locale (creates new one if doesn't exists). If requested translation doesn't
+     * Returns translation for specific locale (creates new one if it doesn't exist). If requested translation doesn't
      * exist, it will first try to fallback default locale If any translation doesn't exist, it will be added to
      * newTranslations collection. In order to persist new translations, call mergeNewTranslations method, before flush
      *
@@ -169,7 +170,7 @@ trait TranslatableMethodsTrait
      *
      * @return mixed The translated value of the field for current locale
      */
-    protected function proxyCurrentLocaleTranslation(string $method, array $arguments = [])
+    protected function proxyCurrentLocaleTranslation(string $method, array $arguments = []): mixed
     {
         // allow $entity->name call $entity->getName() in templates
         if (! method_exists(self::getTranslationEntityClass(), $method)) {
@@ -212,8 +213,9 @@ trait TranslatableMethodsTrait
 
     /**
      * @param Collection|mixed $translations
+     * @throws TranslatableException
      */
-    private function ensureIsIterableOrCollection($translations): void
+    private function ensureIsIterableOrCollection(mixed $translations): void
     {
         if ($translations instanceof Collection) {
             return;

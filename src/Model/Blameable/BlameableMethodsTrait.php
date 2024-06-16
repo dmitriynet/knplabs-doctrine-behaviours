@@ -6,50 +6,32 @@ namespace Knp\DoctrineBehaviors\Model\Blameable;
 
 trait BlameableMethodsTrait
 {
-    /**
-     * @param string|int|object $user
-     */
-    public function setCreatedBy($user): void
+    public function setCreatedBy(object|int|string|null $user): void
     {
         $this->createdBy = $user;
     }
 
-    /**
-     * @param string|int|object $user
-     */
-    public function setUpdatedBy($user): void
+    public function setUpdatedBy(object|int|string|null $user): void
     {
         $this->updatedBy = $user;
     }
 
-    /**
-     * @param string|int|object $user
-     */
-    public function setDeletedBy($user): void
+    public function setDeletedBy(object|int|string|null $user): void
     {
         $this->deletedBy = $user;
     }
 
-    /**
-     * @return int|object|string
-     */
-    public function getCreatedBy()
+    public function getCreatedBy(): object|int|string|null
     {
         return $this->createdBy;
     }
 
-    /**
-     * @return int|object|string
-     */
-    public function getUpdatedBy()
+    public function getUpdatedBy(): object|int|string|null
     {
         return $this->updatedBy;
     }
 
-    /**
-     * @return string|int|object|null
-     */
-    public function getDeletedBy()
+    public function getDeletedBy(): object|int|string|null
     {
         return $this->deletedBy;
     }

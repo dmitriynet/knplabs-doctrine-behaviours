@@ -82,10 +82,7 @@ trait SluggableMethodsTrait
         ));
     }
 
-    /**
-     * @return mixed|null
-     */
-    private function resolveFieldValue(string $field)
+    private function resolveFieldValue(string $field): mixed
     {
         if (property_exists($this, $field)) {
             return $this->{$field};

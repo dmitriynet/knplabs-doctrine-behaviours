@@ -27,7 +27,7 @@ abstract class AbstractBehaviorTestCase extends TestCase
 
         $this->container = $doctrineBehaviorsKernel->getContainer();
 
-        $this->entityManager = $this->getService(EntityManagerInterface::class);
+        $this->entityManager = $this->getService('doctrine')->getManager();
         $this->loadDatabaseFixtures();
 
         set_exception_handler([new ErrorHandler(), 'handleException']);

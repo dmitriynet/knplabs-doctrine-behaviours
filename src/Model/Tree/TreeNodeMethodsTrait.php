@@ -11,10 +11,11 @@ use Knp\DoctrineBehaviors\Contract\Entity\TreeNodeInterface;
 use Knp\DoctrineBehaviors\Exception\ShouldNotHappenException;
 use Knp\DoctrineBehaviors\Exception\TreeException;
 use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 
 trait TreeNodeMethodsTrait
 {
-
+    protected string $parentNodePath = '/';
     public function getNodeId(): int|string|null
     {
         return $this->getId();
@@ -123,10 +124,8 @@ trait TreeNodeMethodsTrait
             : static::getMaterializedPathSeparator();
         $this->setMaterializedPath($path);
 
-        if ($this->parentNode !== null) {
-            $this->parentNode->getChildNodes()
-                ->removeElement($this);
-        }
+        $this->parentNode?->getChildNodes()
+            ->removeElement($this);
 
         $this->parentNode = $treeNode;
 
@@ -180,7 +179,8 @@ trait TreeNodeMethodsTrait
     }
 
     /**
-     * @param Closure $prepare a function to prepare the node before putting into the result
+     * @param ?Closure $prepare a function to prepare the node before putting into the result
+     * @throws JsonException
      */
     public function toJson(?Closure $prepare = null): string
     {
@@ -190,7 +190,7 @@ trait TreeNodeMethodsTrait
     }
 
     /**
-     * @param Closure $prepare a function to prepare the node before putting into the result
+     * @param ?Closure $prepare a function to prepare the node before putting into the result
      */
     public function toArray(?Closure $prepare = null, ?array &$tree = null): array
     {
@@ -221,8 +221,8 @@ trait TreeNodeMethodsTrait
     }
 
     /**
-     * @param Closure $prepare a function to prepare the node before putting into the result
-     * @param array $tree a reference to an array, used internally for recursion
+     * @param ?Closure $prepare a function to prepare the node before putting into the result
+     * @param ?array $tree a reference to an array, used internally for recursion
      */
     public function toFlatArray(?Closure $prepare = null, ?array &$tree = null): array
     {
@@ -266,16 +266,14 @@ trait TreeNodeMethodsTrait
         unset($this->getChildNodes()[$offset]);
     }
 
-    /**
-     * @return mixed
-     */
-    public function offsetGet(mixed $offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->getChildNodes()[$offset];
     }
 
     /**
      * @return string[]
+     * @throws ShouldNotHappenException
      */
     protected function getExplodedPath(): array
     {

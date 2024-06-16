@@ -4,37 +4,32 @@ declare(strict_types=1);
 
 namespace Knp\DoctrineBehaviors\EventSubscriber;
 
-use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\UnitOfWork;
 use Knp\DoctrineBehaviors\Contract\Entity\BlameableInterface;
 use Knp\DoctrineBehaviors\Contract\Provider\UserProviderInterface;
 
-final class BlameableEventSubscriber implements EventSubscriberInterface
+#[AsDoctrineListener(event: Events::prePersist)]
+#[AsDoctrineListener(event: Events::preUpdate)]
+#[AsDoctrineListener(event: Events::preRemove)]
+#[AsDoctrineListener(event: Events::loadClassMetadata)]
+final readonly class BlameableEventSubscriber
 {
-    /**
-     * @var string
-     */
-    private const DELETED_BY = 'deletedBy';
-
-    /**
-     * @var string
-     */
-    private const UPDATED_BY = 'updatedBy';
-
-    /**
-     * @var string
-     */
-    private const CREATED_BY = 'createdBy';
+    private const string DELETED_BY = 'deletedBy';
+    private const string UPDATED_BY = 'updatedBy';
+    private const string CREATED_BY = 'createdBy';
 
     public function __construct(
-        private UserProviderInterface $userProvider,
+        private UserProviderInterface  $userProvider,
         private EntityManagerInterface $entityManager,
-        private ?string $blameableUserEntity = null
+        private ?string                $blameableUserEntity = null
     ) {
     }
 
@@ -59,9 +54,11 @@ final class BlameableEventSubscriber implements EventSubscriberInterface
     /**
      * Stores the current user into createdBy and updatedBy properties
      */
-    public function prePersist(LifecycleEventArgs $lifecycleEventArgs): void
+    public function prePersist(PrePersistEventArgs $lifecycleEventArgs): void
     {
-        $entity = $lifecycleEventArgs->getEntity();
+        error_log('prePersist event triggered');
+die;
+        $entity = $lifecycleEventArgs->getObject();
         if (! $entity instanceof BlameableInterface) {
             return;
         }
@@ -90,9 +87,9 @@ final class BlameableEventSubscriber implements EventSubscriberInterface
     /**
      * Stores the current user into updatedBy property
      */
-    public function preUpdate(LifecycleEventArgs $lifecycleEventArgs): void
+    public function preUpdate(PreUpdateEventArgs $lifecycleEventArgs): void
     {
-        $entity = $lifecycleEventArgs->getEntity();
+        $entity = $lifecycleEventArgs->getObject();
         if (! $entity instanceof BlameableInterface) {
             return;
         }
@@ -112,9 +109,9 @@ final class BlameableEventSubscriber implements EventSubscriberInterface
     /**
      * Stores the current user into deletedBy property
      */
-    public function preRemove(LifecycleEventArgs $lifecycleEventArgs): void
+    public function preRemove(PreRemoveEventArgs $lifecycleEventArgs): void
     {
-        $entity = $lifecycleEventArgs->getEntity();
+        $entity = $lifecycleEventArgs->getObject();
         if (! $entity instanceof BlameableInterface) {
             return;
         }
@@ -139,7 +136,7 @@ final class BlameableEventSubscriber implements EventSubscriberInterface
         return [Events::prePersist, Events::preUpdate, Events::preRemove, Events::loadClassMetadata];
     }
 
-    private function mapEntity(ClassMetadataInfo $classMetadataInfo): void
+    private function mapEntity(ClassMetadata $classMetadataInfo): void
     {
         if ($this->blameableUserEntity !== null && class_exists($this->blameableUserEntity)) {
             $this->mapManyToOneUser($classMetadataInfo);
@@ -153,21 +150,21 @@ final class BlameableEventSubscriber implements EventSubscriberInterface
         return $this->entityManager->getUnitOfWork();
     }
 
-    private function mapManyToOneUser(ClassMetadataInfo $classMetadataInfo): void
+    private function mapManyToOneUser(ClassMetadata $classMetadataInfo): void
     {
         $this->mapManyToOneWithTargetEntity($classMetadataInfo, self::CREATED_BY);
         $this->mapManyToOneWithTargetEntity($classMetadataInfo, self::UPDATED_BY);
         $this->mapManyToOneWithTargetEntity($classMetadataInfo, self::DELETED_BY);
     }
 
-    private function mapStringUser(ClassMetadataInfo $classMetadataInfo): void
+    private function mapStringUser(ClassMetadata $classMetadataInfo): void
     {
         $this->mapStringNullableField($classMetadataInfo, self::CREATED_BY);
         $this->mapStringNullableField($classMetadataInfo, self::UPDATED_BY);
         $this->mapStringNullableField($classMetadataInfo, self::DELETED_BY);
     }
 
-    private function mapManyToOneWithTargetEntity(ClassMetadataInfo $classMetadataInfo, string $fieldName): void
+    private function mapManyToOneWithTargetEntity(ClassMetadata $classMetadataInfo, string $fieldName): void
     {
         if ($classMetadataInfo->hasAssociation($fieldName)) {
             return;
@@ -184,7 +181,7 @@ final class BlameableEventSubscriber implements EventSubscriberInterface
         ]);
     }
 
-    private function mapStringNullableField(ClassMetadataInfo $classMetadataInfo, string $fieldName): void
+    private function mapStringNullableField(ClassMetadata $classMetadataInfo, string $fieldName): void
     {
         if ($classMetadataInfo->hasField($fieldName)) {
             return;

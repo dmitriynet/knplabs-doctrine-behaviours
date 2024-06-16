@@ -9,18 +9,10 @@ use Knp\DoctrineBehaviors\Contract\Entity\TreeNodeInterface;
 
 trait TreeNodePropertiesTrait
 {
-    /**
-     * @var string
-     */
-    protected $materializedPath = '';
+    protected string $materializedPath = '';
 
-    /**
-     * @var Collection|TreeNodeInterface[]
-     */
-    private $childNodes;
+    /** @var Collection|TreeNodeInterface[] */
+    private array|Collection|null $childNodes = null;
 
-    /**
-     * @var TreeNodeInterface|null
-     */
-    private $parentNode;
+    private ?TreeNodeInterface $parentNode = null;
 }

@@ -40,7 +40,7 @@ final class EntityUserProvider implements UserProviderInterface
         $this->userEntities[$name] = $userEntity;
     }
 
-    public function provideUser()
+    public function provideUser(): object|string|null
     {
         $this->prepareUserEntities();
 

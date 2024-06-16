@@ -12,12 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class LocaleProvider implements LocaleProviderInterface
+final readonly class LocaleProvider implements LocaleProviderInterface
 {
     public function __construct(
-        private RequestStack $requestStack,
+        private RequestStack          $requestStack,
         private ParameterBagInterface $parameterBag,
-        private ?TranslatorInterface $translator
+        private ?TranslatorInterface  $translator
     ) {
     }
 
@@ -33,11 +33,7 @@ final class LocaleProvider implements LocaleProviderInterface
             return $currentLocale;
         }
 
-        if ($this->translator !== null) {
-            return $this->translator->getLocale();
-        }
-
-        return null;
+        return $this->translator?->getLocale();
     }
 
     public function provideFallbackLocale(): ?string

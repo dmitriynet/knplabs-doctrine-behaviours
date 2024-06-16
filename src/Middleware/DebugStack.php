@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 
 class DebugStack implements MiddlewareInterface
 {
-    public function __construct(private LoggerInterface $logger){}
+    public function __construct(private readonly LoggerInterface $logger){}
 
     /**
      * Executed SQL queries.

@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping\Entity;
 class SoftDeletableEntityInherit extends SoftDeletableEntity
 {
     #[Column(type: 'string')]
-    private string $name;
+    private string $name = '';
 
     public function getName(): string
     {
