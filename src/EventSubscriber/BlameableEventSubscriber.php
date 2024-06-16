@@ -56,8 +56,6 @@ final readonly class BlameableEventSubscriber
      */
     public function prePersist(PrePersistEventArgs $lifecycleEventArgs): void
     {
-        error_log('prePersist event triggered');
-die;
         $entity = $lifecycleEventArgs->getObject();
         if (! $entity instanceof BlameableInterface) {
             return;
